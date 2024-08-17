@@ -11,10 +11,10 @@ This Python script retrieves performance data for all participants in a HackerRa
 
 After running the script, you will get a CSV file named `leaderboard-<contest_slug>.csv`. Here's an example of what the CSV file might look like:
 
-| name               | problem1-Sample-Easy | problem2-Biscuit Fest-Easy | rank | score |
-|--------------------|----------------------|----------------------------|------|-------|
-| user1              | 1                    | 0                          | 1    | 1500  |
-| user2              | 0                    | 1                          | 2    | 1200  |
+| name               | problem1-Sample-Easy | problem2-Biscuit Fest-Easy | ... | rank | score |
+|--------------------|----------------------|----------------------------|-----|------|-------|
+| user1              | 1                    | 0                          | ... | 1    | 1500  |
+| user2              | 0                    | 1                          | ... | 2    | 1200  |
 
 
 ## Prerequisites
