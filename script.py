@@ -2,6 +2,7 @@ import csv
 import getpass
 import sys
 import requests
+import json
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -63,16 +64,32 @@ def get_leaderboard_data(email, password, slug):
     return leaderboard_dict
 
 
-def get_contest_details(email, password, slug):
-    challenges_request = requests.get(
-        f"https://www.hackerrank.com/rest/contests/{slug}/challenges",
-        auth=(email, password), headers=headers)
+def get_all_challenges(email, password, slug):
+    challenges_list = []
+    offset = 0
+    limit = 100  # You can adjust this if needed
+    
+    while True:
+        url = f"https://www.hackerrank.com/rest/contests/{slug}/challenges?offset={offset}&limit={limit}"
+        # print(f"Requesting URL: {url}")
+        
+        challenges_request = requests.get(url, auth=(email, password), headers=headers)
+        
+        if challenges_request.status_code != 200:
+            print(f"Error getting challenges. Status Code: {challenges_request.status_code}")
+            print(f"Response: {challenges_request.text}")
+            sys.exit(-1)
 
-    if challenges_request.status_code != 200:
-        print("Error getting challenges. Exiting...")
-        sys.exit(-1)
-
-    challenges_list = challenges_request.json()['models']
+        challenges_response_json = challenges_request.json()
+        new_challenges = challenges_response_json.get('models', [])
+        
+        if not new_challenges:
+            break
+        
+        challenges_list.extend(new_challenges)
+        offset += limit  # Move to the next page
+    
+    # print(f"Total challenges retrieved: {len(challenges_list)}")
     return challenges_list
 
 
@@ -104,7 +121,7 @@ def get_problem_scores(email, password, slug, problem_slug, max_score):
 def create_leaderboard_file(email, password):
     con_slug, con_id = print_get_contest(email, password)
     leaderboard_dict = get_leaderboard_data(email, password, con_slug)
-    challenges_list = get_contest_details(email, password, con_slug)
+    challenges_list = get_all_challenges(email, password, con_slug)
 
     # Field names for CSV
     problem_fields = [f"problem{i+1}-{c['name']}-{c['difficulty_name']}" for i, c in enumerate(challenges_list)]
